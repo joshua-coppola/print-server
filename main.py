@@ -1,6 +1,8 @@
 import streamlit as st
 import os
 
+from config import color_printer
+from config import black_white_printer
 
 def app():
     st.image("cif_logo.jpg", width=100)
@@ -18,13 +20,30 @@ def app():
         except Exception as e:
             print(e)
 
+    copy_count = st.slider("Number of Copies", 1, 5, 1)
+    st.markdown("If more than 5 copies are needed, please print in person.")
+
+    double_sided = "one-sided"
+
+    if st.checkbox("Color"):
+        printer_name = color_printer
+    else:
+        printer_name = black_white_printer
+        if st.checkbox("Double Sided", value=True):
+            double_sided = "two-sided-long-edge"
+        else:
+            double_sided = "one-sided"
+
     if st.button("Print"):
-        
-        printer_name = "HP-LaserJet-500-color-M551"
-        #printer_name = "HP-LaserJet-P4015"
+
         if file_name is not None:
-            st.markdown(f"Printing {file_name}")
-            st.markdown(f"temp/{file_name}")
-            st.write(os.system(f'lpr -P {printer_name} temp/"{file_name}"'))
+            #st.markdown(f"Printing {file_name}")
+            #st.markdown(f"temp/{file_name}")
+            command = f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}'
+            st.write(os.system(f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}'))
             os.system(f'rm temp/"{file_name}"')
+            st.markdown("Printing...")
+
+
+
 app()
