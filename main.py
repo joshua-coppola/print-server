@@ -1,8 +1,19 @@
 import streamlit as st
 import os
+import random
+import datetime
 
 from config import color_printer
 from config import black_white_printer
+from config import allowed_extensions
+
+
+# TODO:
+#- landscape
+#- page ranges
+#- authentication
+#- shorten list of filetypes
+ 
 
 def app():
     st.image("cif_logo.jpg", width=100)
@@ -10,13 +21,16 @@ def app():
     st.write("\n")
 
     # Code to read a single file 
-    uploaded_file = st.file_uploader("Choose a file")
+
+    uploaded_file = st.file_uploader("Choose a file", type=allowed_extensions)
     file_name = None
     if uploaded_file is not None:
         try:
-            with open(os.path.join("temp", uploaded_file.name),"wb") as f:
+            extension = uploaded_file.name.split(".")[1]
+            salt = random.randint(0,100000)
+            with open(f"temp/print_file{salt}.{extension}","wb") as f:
                 f.write(uploaded_file.getbuffer())
-            file_name = uploaded_file.name
+            file_name = f"print_file{salt}.{extension}"
         except Exception as e:
             print(e)
 
@@ -39,10 +53,11 @@ def app():
         if file_name is not None:
             #st.markdown(f"Printing {file_name}")
             #st.markdown(f"temp/{file_name}")
-            command = f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}'
-            st.write(os.system(f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}'))
-            os.system(f'rm temp/"{file_name}"')
+            status = os.system(f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}')
+            os.system(f'rm temp/*')
             st.markdown("Printing...")
+            with open('logs.csv', 'a') as output:
+                output.write(f'{datetime.datetime.now()},{uploaded_file.name},{copy_count},{printer_name},{double_sided},{status}\n')
 
 
 
