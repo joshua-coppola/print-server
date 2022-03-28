@@ -9,10 +9,7 @@ from config import allowed_extensions
 
 
 # TODO:
-#- landscape
-#- page ranges
 #- authentication
-#- shorten list of filetypes
  
 
 def app():
@@ -36,6 +33,8 @@ def app():
 
     copy_count = st.slider("Number of Copies", 1, 5, 1)
     st.markdown("If more than 5 copies are needed, please print in person.")
+    st.markdown("Color cannot be combined with double sided printing.")
+
 
     double_sided = "one-sided"
 
@@ -47,17 +46,33 @@ def app():
             double_sided = "two-sided-long-edge"
         else:
             double_sided = "one-sided"
+    if st.checkbox("Landscape"):
+        orientation = "-o orientation-requested=4"
+        if "two-sided" in double_sided:
+            double_sided = "two-sided-short-edge"
+    else:
+        orientation = ""
+        if "two-sided" in double_sided:
+            double_sided = "two-sided-long-edge"
+    if not st.checkbox("Print All Pages", value = True):
+        start = st.number_input("Start Page", min_value = 1, value = 1, step = 1)
+        end = st.number_input("End Page", min_value = 1, value = 1, step = 1)
+        page_range = f"-o page-ranges={start}-{end}"
+    else:
+        page_range = ""
 
     if st.button("Print"):
 
         if file_name is not None:
             #st.markdown(f"Printing {file_name}")
             #st.markdown(f"temp/{file_name}")
-            status = os.system(f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided}')
+            status = os.system(f'lpr -P {printer_name} temp/"{file_name}" -# {copy_count} -o sides={double_sided} {orientation} {page_range}')
             os.system(f'rm temp/*')
             st.markdown("Printing...")
             with open('logs.csv', 'a') as output:
-                output.write(f'{datetime.datetime.now()},{uploaded_file.name},{copy_count},{printer_name},{double_sided},{status}\n')
+                output.write(f'{datetime.datetime.now()},{uploaded_file.name},{copy_count},{printer_name},{double_sided},{page_range},{status}\n')
+        else:
+            st.markdown("No file provided")
 
 
 
