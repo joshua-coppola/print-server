@@ -17,6 +17,9 @@ def app():
     st.markdown("## CIF Print Server")
     st.write("\n")
 
+    if not os.path.isdir('temp'):
+        os.mkdir('temp')
+
     # Code to read a single file 
 
     uploaded_file = st.file_uploader("Choose a file", type=allowed_extensions)
@@ -31,8 +34,8 @@ def app():
         except Exception as e:
             print(e)
 
-    copy_count = st.slider("Number of Copies", 1, 5, 1)
-    st.markdown("If more than 5 copies are needed, please print in person.")
+    copy_count = st.slider("Number of Copies", 1, 3, 1)
+    st.markdown("If more than 3 copies are needed, please print in person.")
     st.markdown("Color cannot be combined with double sided printing.")
 
 

@@ -13,6 +13,6 @@ Printer Names are configured in config.py.
 
 ## Running the program
 
-`streamlit run main.py --theme.base light --server.port X`
+`streamlit run main.py --theme.base light --server.maxUploadSize 20 --server.port X`
 
 This will make the webpage appear on `localhost:X` and `IP:X`.
